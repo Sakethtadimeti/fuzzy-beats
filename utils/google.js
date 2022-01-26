@@ -68,9 +68,9 @@ const onGoogleScriptsLoad = async () => {
   gapi.load("client:auth2", initClient);
   async function initClient() {
     await gapi.client.init({
-      apiKey: "AIzaSyA0kMSbRwaB-4aXOehRIgnIELowrvr_9vA",
+      apiKey: 'API_KEY_HERE',
       clientId:
-        "328083790130-nifj2tjsr43oq4lc4rhqs24arm35dam7.apps.googleusercontent.com",
+        "CLIENT_ID_HERE",
       scope: SCOPE,
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest",

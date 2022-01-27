@@ -2,7 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import {
-  getLikedVideos,
+  updatePosition,
   fetchPlaylists,
   attemptSignIn,
   handleLogout,
@@ -18,15 +18,12 @@ const transfer = (oldList, newList, oldPosition, newPosition) => {
   const element = oldList[oldPosition];
   oldList.splice(oldPosition, 1);
   newList.splice(newPosition, 0, element);
-  console.log({ oldList, newList });
 };
 
 const swap = (list, old, newPosition) => {
-  console.log(list);
   const temp = list[old];
-  list[old] = list[newPosition];
-  list[newPosition] = temp;
-  console.log(list);
+  list.splice(old, 1);
+  list.splice(newPosition, 0, temp);
 };
 
 export default function Home() {
@@ -104,14 +101,20 @@ export default function Home() {
       setPlayListVideos({ ...playListVideos });
     } else if (sourceIndex !== destinationIndex) {
       // reorder the same playlist
+      const video = playListVideos[sourceDroppableId][sourceIndex];
       swap(playListVideos[sourceDroppableId], sourceIndex, destinationIndex);
+      // TODO handle failure scenarios
+      updatePosition({
+        position: destinationIndex,
+        id: video.id,
+        snippet: video.snippet,
+      });
       playListVideos[sourceDroppableId] = [
         ...playListVideos[sourceDroppableId],
       ];
       setPlayListVideos({ ...playListVideos });
     }
   };
-  console.log(playListVideos);
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <button onClick={handleLogout}>Log out</button>

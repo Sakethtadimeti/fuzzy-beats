@@ -31,7 +31,6 @@ const Item = ({ item, index }) => {
         },
       },
     });
-    console.log(response);
   };
   const thumbnail = getThumbnail(thumbnails);
   return (

@@ -9,7 +9,6 @@ const Playlists = ({list}) => {
       disablePortal
       id="combo-box-demo"
       options={list}
-      onChange={e => console.log(e)}
       sx={{ width: 300, margin: '1rem' }}
       renderInput={(params) => <TextField {...params} label="Playlists" />}
     />

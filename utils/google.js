@@ -1,16 +1,15 @@
 const SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl";
 let GoogleAuth;
 
-const formatSnippets = (items) => {
-  items.map((item) => {
-    const { snippet, id, contentDetails } = item;
-  });
-};
 
 const getLikedVideos = async () => {
-  return getPlaylistVideos({fetchAll:false, playlistId : "LL" })
-}
-const getPlaylistVideos = async ({ pageToken, fetchAll = true, playlistId }) => {
+  return getPlaylistVideos({ fetchAll: false, playlistId: "LL" });
+};
+const getPlaylistVideos = async ({
+  pageToken,
+  fetchAll = true,
+  playlistId,
+}) => {
   const payload = {
     part: ["contentDetails", "id", "snippet", "status"],
     maxResults: 50,
@@ -35,9 +34,9 @@ const getPlaylistVideos = async ({ pageToken, fetchAll = true, playlistId }) => 
 };
 
 const fetchPlaylists = async () => {
-  var user = GoogleAuth.currentUser.get();
-  var isAuthorized = user.hasGrantedScopes(SCOPE);
-  console.log({ isAuthorized, user });
+  const user = GoogleAuth.currentUser.get();
+  const isAuthorized = user.hasGrantedScopes(SCOPE);
+  if(!isAuthorized) return [];
   const {
     result: { items },
   } = await gapi.client.youtube.playlists.list({
@@ -56,7 +55,7 @@ const fetchPlaylists = async () => {
     description: item.snippet.description,
     player: item.player.embedHtml,
     id: item.id,
-    label: item.snippet.title
+    label: item.snippet.title,
   }));
   return playlists;
 };
@@ -68,9 +67,8 @@ const onGoogleScriptsLoad = async () => {
   gapi.load("client:auth2", initClient);
   async function initClient() {
     await gapi.client.init({
-      apiKey: "API_KEY",
-      clientId:
-        "CLIENT_ID",
+      apiKey: process.env.NEXT_PUBLIC_GOOGLE_API_KEY,
+      clientId: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
       scope: SCOPE,
       discoveryDocs: [
         "https://www.googleapis.com/discovery/v1/apis/youtube/v3/rest",
@@ -81,10 +79,25 @@ const onGoogleScriptsLoad = async () => {
     GoogleAuth.isSignedIn.listen(updateSigninStatus);
     const user = GoogleAuth.currentUser.get();
     const isAuthorized = user.hasGrantedScopes(SCOPE);
-    console.log({ isAuthorized, user });
 
     !isAuthorized && attemptSignIn();
   }
+};
+
+const updatePosition = async ({ id, position, snippet }) => {
+  const response = await gapi.client.youtube.playlistItems.update({
+    part: ["id", "snippet"],
+    resource: {
+      id: id,
+      snippet: {
+        playlistId: snippet.playlistId,
+        position,
+        resourceId: snippet.resourceId
+      },
+    },
+  });
+  // TODO handle by response status code
+  return response;
 };
 
 const attemptSignIn = async () => {
@@ -101,5 +114,6 @@ export {
   onGoogleScriptsLoad,
   attemptSignIn,
   handleLogout,
-  getPlaylistVideos
+  getPlaylistVideos,
+  updatePosition,
 };
